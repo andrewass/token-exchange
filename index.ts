@@ -1,8 +1,5 @@
-const server = Bun.serve({
-    port: 3050,
-    routes: {
-        "/": () => new Response('Bun!'),
-    }
-});
+import { createServer } from "./routes/server.ts";
 
-console.log(`Listening on ${server.url}`);
+const server = createServer();
+
+console.log(`Token-Exchange: Listening on ${server.url}`);

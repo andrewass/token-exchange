@@ -1,15 +1,16 @@
 {
-  "name": "token-exchange",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "scripts": {
-    "start": "bun run index.ts"
-  },
-  "devDependencies": {
-    "@types/bun": "^1.3.9"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  }
+	"name": "token-exchange",
+	"module": "index.ts",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"start": "bun run index.ts"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.4.4",
+		"@types/bun": "^1.3.9"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	}
 }
