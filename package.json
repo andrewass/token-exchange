@@ -1,10 +1,10 @@
 {
 	"name": "token-exchange",
-	"module": "index.ts",
+	"module": "src/server.ts",
 	"type": "module",
 	"private": true,
 	"scripts": {
-		"start": "bun run index.ts"
+		"dev": "bun run --hot src/server.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.4",

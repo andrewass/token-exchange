@@ -1,11 +1,15 @@
-import {postToken} from "./routes/token.ts";
+import { Hono } from "hono";
+import jwks from "./jwks/jwksRoutes.ts";
+import tokens from "./token/tokenRoutes.ts";
 
-export function createServer() {
-	return Bun.serve({
-		port: 3050,
-		routes: {
-			"/": () => new Response("Bun!"),
-			"/token": postToken,
-		},
-	});
-}
+const app = new Hono();
+
+app.route("/tokens", tokens);
+app.route("/jwks", jwks);
+
+app.get("/", (c) => c.text("Hello Bun!"));
+
+export default {
+	fetch: app.fetch,
+	port: 3050,
+};
