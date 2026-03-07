@@ -1,13 +1,6 @@
-import { Hono } from "hono";
-import jwks from "./jwks/jwksRoutes.ts";
-import tokens from "./token/tokenRoutes.ts";
+import { createApp } from "@composition/createApp.ts";
 
-const app = new Hono();
-
-app.route("/tokens", tokens);
-app.route("/jwks", jwks);
-
-app.get("/", (c) => c.text("Hello Bun!"));
+const app = createApp();
 
 export default {
 	fetch: app.fetch,
