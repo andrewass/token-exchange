@@ -22,7 +22,7 @@ export class OAuthTokenExchangeError extends Error {
 		super(message);
 		this.error = error;
 		this.status = status;
-		this.errorDescription = errorDescription;
+		this.errorDescription = errorDescription ?? message;
 	}
 
 	toOAuthBody(): { error: OAuthErrorCode; error_description?: string } {

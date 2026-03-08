@@ -48,12 +48,28 @@ function shouldLogClientErrors(): boolean {
 function toErrorContext(error: unknown): Record<string, unknown> {
 	if (error instanceof Error) {
 		return {
-			errorName: error.name,
-			errorMessage: error.message,
+			type: error.name,
+			message: error.message,
 			stack: error.stack,
 		};
 	}
-	return { errorValue: String(error) };
+	return {
+		type: "UnknownError",
+		message: String(error),
+	};
+}
+
+function toOAuthErrorContext(
+	error: OAuthTokenExchangeError,
+	status: number,
+): Record<string, unknown> {
+	return {
+		type: "OAuthTokenExchangeError",
+		code: error.error,
+		message: error.message,
+		description: error.errorDescription,
+		status,
+	};
 }
 
 export function createTokenRoutes(exchangeTokenUseCase: ExchangeTokenUseCase) {
@@ -70,7 +86,7 @@ export function createTokenRoutes(exchangeTokenUseCase: ExchangeTokenUseCase) {
 			logger.warn("Invalid token request body", {
 				requestId,
 				path: c.req.path,
-				...toErrorContext(error),
+				error: toErrorContext(error),
 			});
 			return c.json(
 				{
@@ -86,6 +102,13 @@ export function createTokenRoutes(exchangeTokenUseCase: ExchangeTokenUseCase) {
 				logger.warn("Unsupported grant_type", {
 					requestId,
 					path: c.req.path,
+					error: {
+						type: "OAuthTokenExchangeError",
+						code: "unsupported_grant_type",
+						message: "Unsupported grant_type",
+						description: `grant_type must be ${TOKEN_EXCHANGE_GRANT_TYPE}`,
+						status: 400,
+					},
 					grantType: first(body, "grant_type"),
 				});
 			}
@@ -119,9 +142,7 @@ export function createTokenRoutes(exchangeTokenUseCase: ExchangeTokenUseCase) {
 					logFn("Token exchange rejected", {
 						requestId,
 						path: c.req.path,
-						oauthError: error.error,
-						status,
-						errorDescription: error.errorDescription,
+						error: toOAuthErrorContext(error, status),
 					});
 				}
 				return c.json(error.toOAuthBody(), status);
@@ -130,7 +151,7 @@ export function createTokenRoutes(exchangeTokenUseCase: ExchangeTokenUseCase) {
 			logger.error("Unhandled token exchange exception", {
 				requestId,
 				path: c.req.path,
-				...toErrorContext(error),
+				error: toErrorContext(error),
 			});
 			return c.json({ error: "server_error" }, 500);
 		}
