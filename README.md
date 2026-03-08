@@ -19,10 +19,10 @@ Server defaults to `http://localhost:3050`.
 
 ## Environment variables
 
-- `ISSUER_BASE_URL` (default: `http://localhost:3050`)
+- `ISSUER_BASE_URL`
 - `GOOGLE_ALLOWED_AUDIENCES` comma-separated allowed Google client IDs
-- `STOCKCOMP_AUDIENCE` (default: `https://api.stockcomp.local`)
-- `LOG_LEVEL` one of `debug|info|warn|error` (default: `info`)
+- `STOCKCOMP_AUDIENCE`
+- `LOG_LEVEL` one of `debug|info|warn|error`
 - `LOG_CLIENT_ERRORS` set to `false` to suppress 4xx logs (default: logs 4xx)
 
 ## Example token exchange request

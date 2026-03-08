@@ -66,17 +66,22 @@ export function createApp() {
 		}
 	});
 
-	const issuerBaseUrl = process.env.ISSUER_BASE_URL ?? "http://localhost:3050";
+	const issuerBaseUrl =
+		process.env.ISSUER_BASE_URL ??
+		(() => {
+			throw new Error("ISSUER_BASE_URL is not set");
+		})();
 	const stockcompAudience =
-		process.env.STOCKCOMP_AUDIENCE ?? "https://api.stockcomp.local";
+		process.env.STOCKCOMP_AUDIENCE ??
+		(() => {
+			throw new Error("STOCKCOMP_AUDIENCE is not set");
+		})();
 
 	const keyStore = new LocalRsaKeyStore();
 
 	const incomingTokenValidators = new InMemoryIncomingTokenValidatorRegistry([
 		new GoogleIdTokenValidator({
-			allowedAudiences: readCsvEnv("GOOGLE_ALLOWED_AUDIENCES", [
-				"google-client-id-placeholder",
-			]),
+			allowedAudiences: readCsvEnv("GOOGLE_ALLOWED_AUDIENCES", []),
 			allowedIssuers: ["https://accounts.google.com", "accounts.google.com"],
 		}),
 	]);
