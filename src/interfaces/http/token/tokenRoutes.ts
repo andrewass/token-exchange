@@ -4,6 +4,8 @@ import {
 	type ExchangeTokenCommand,
 	TOKEN_EXCHANGE_GRANT_TYPE,
 } from "@domain/tokenExchange/types.ts";
+import { logger } from "@infrastructure/observability/appLogger.ts";
+import type { AppBindings } from "@interfaces/http/httpContext.ts";
 import { Hono } from "hono";
 
 function first(
@@ -39,26 +41,54 @@ function oauthStatus(status: number): 400 | 401 | 403 | 500 {
 	return 400;
 }
 
+function shouldLogClientErrors(): boolean {
+	return process.env.LOG_CLIENT_ERRORS !== "false";
+}
+
+function toErrorContext(error: unknown): Record<string, unknown> {
+	if (error instanceof Error) {
+		return {
+			errorName: error.name,
+			errorMessage: error.message,
+			stack: error.stack,
+		};
+	}
+	return { errorValue: String(error) };
+}
+
 export function createTokenRoutes(exchangeTokenUseCase: ExchangeTokenUseCase) {
-	const tokens = new Hono();
+	const tokens = new Hono<AppBindings>();
+	const logClientErrors = shouldLogClientErrors();
 
-	tokens.post("/exchange", async (c) => {
+	tokens.post("/", async (c) => {
+		const requestId = c.get("requestId");
+		let body: Record<string, string | File | (string | File)[] | undefined>;
+
 		try {
-			const body = await c.req.parseBody();
-			const command = toCommand(body);
-			const response = await exchangeTokenUseCase.execute(command);
-			return c.json(response);
+			body = await c.req.parseBody();
 		} catch (error) {
-			if (error instanceof OAuthTokenExchangeError) {
-				return c.json(error.toOAuthBody(), oauthStatus(error.status));
-			}
-			return c.json({ error: "server_error" }, 500);
+			logger.warn("Invalid token request body", {
+				requestId,
+				path: c.req.path,
+				...toErrorContext(error),
+			});
+			return c.json(
+				{
+					error: "invalid_request",
+					error_description: "Request body must be a valid form payload.",
+				},
+				400,
+			);
 		}
-	});
 
-	tokens.post("/token", async (c) => {
-		const body = await c.req.parseBody();
 		if (first(body, "grant_type") !== TOKEN_EXCHANGE_GRANT_TYPE) {
+			if (logClientErrors) {
+				logger.warn("Unsupported grant_type", {
+					requestId,
+					path: c.req.path,
+					grantType: first(body, "grant_type"),
+				});
+			}
 			return c.json(
 				{
 					error: "unsupported_grant_type",
@@ -71,11 +101,37 @@ export function createTokenRoutes(exchangeTokenUseCase: ExchangeTokenUseCase) {
 		try {
 			const command = toCommand(body);
 			const response = await exchangeTokenUseCase.execute(command);
+			logger.info("Token exchange succeeded", {
+				requestId,
+				path: c.req.path,
+				audience: command.audience,
+				subjectTokenType: command.subjectTokenType,
+			});
 			return c.json(response);
 		} catch (error) {
 			if (error instanceof OAuthTokenExchangeError) {
-				return c.json(error.toOAuthBody(), oauthStatus(error.status));
+				const status = oauthStatus(error.status);
+				if (status >= 500 || logClientErrors) {
+					const logFn =
+						status >= 500
+							? logger.error.bind(logger)
+							: logger.warn.bind(logger);
+					logFn("Token exchange rejected", {
+						requestId,
+						path: c.req.path,
+						oauthError: error.error,
+						status,
+						errorDescription: error.errorDescription,
+					});
+				}
+				return c.json(error.toOAuthBody(), status);
 			}
+
+			logger.error("Unhandled token exchange exception", {
+				requestId,
+				path: c.req.path,
+				...toErrorContext(error),
+			});
 			return c.json({ error: "server_error" }, 500);
 		}
 	});

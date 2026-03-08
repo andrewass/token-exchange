@@ -14,7 +14,6 @@ Server defaults to `http://localhost:3050`.
 ## Endpoints
 
 - `POST /tokens/token` (OAuth-style token endpoint)
-- `POST /tokens/exchange` (alias endpoint)
 - `GET /jwks` (public keys for issued access tokens)
 - `GET /.well-known/oauth-authorization-server` (metadata)
 
@@ -23,6 +22,8 @@ Server defaults to `http://localhost:3050`.
 - `ISSUER_BASE_URL` (default: `http://localhost:3050`)
 - `GOOGLE_ALLOWED_AUDIENCES` comma-separated allowed Google client IDs
 - `STOCKCOMP_AUDIENCE` (default: `https://api.stockcomp.local`)
+- `LOG_LEVEL` one of `debug|info|warn|error` (default: `info`)
+- `LOG_CLIENT_ERRORS` set to `false` to suppress 4xx logs (default: logs 4xx)
 
 ## Example token exchange request
 
@@ -43,6 +44,13 @@ curl -X POST http://localhost:3050/tokens/token \
 - `src/infrastructure/*`: concrete validators, registries, issuers, clock
 - `src/interfaces/http/*`: Hono HTTP routes
 - `src/composition/createApp.ts`: composition root
+
+## Logging and tracing
+
+- Every request gets a `requestId` (`x-request-id` in/out).
+- Access logs include method, path, status, duration, and requestId.
+- 5xx responses are always logged as errors.
+- 4xx responses are logged as warnings by default; disable with `LOG_CLIENT_ERRORS=false`.
 
 ## Notes
 
