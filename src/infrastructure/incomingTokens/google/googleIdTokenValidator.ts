@@ -43,7 +43,7 @@ export class GoogleIdTokenValidator implements IncomingTokenValidator {
 		}
 
 		return {
-			subject: payload.sub,
+			subject: `google:${payload.sub}`,
 			issuer: String(payload.iss),
 			tokenType: ID_TOKEN_TYPE,
 			claims: payload,
@@ -135,3 +135,4 @@ export class GoogleIdTokenValidator implements IncomingTokenValidator {
 		}
 	}
 }
+

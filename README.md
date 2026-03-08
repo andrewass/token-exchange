@@ -45,6 +45,20 @@ curl -X POST http://localhost:3050/tokens/token \
 - `src/interfaces/http/*`: Hono HTTP routes
 - `src/composition/createApp.ts`: composition root
 
+## Access token claim contract
+
+For exchanged access tokens issued from Google ID tokens:
+
+- `sub`: `google:<google_sub>` (stable external identity key)
+- `iss`: token exchange server issuer (`ISSUER_BASE_URL`)
+- `aud`: target resource server audience
+- `exp` / `iat`: token expiry / issued-at timestamps
+- `scope`: granted scopes (if requested)
+- `act.sub`: same identity as `sub`
+- `act.iss`: upstream token issuer (for Google: `https://accounts.google.com` or `accounts.google.com`)
+
+Resource servers should use `sub` as the principal identifier and map it to local user records.
+
 ## Logging and tracing
 
 - Every request gets a `requestId` (`x-request-id` in/out).
