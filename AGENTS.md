@@ -25,6 +25,8 @@ Optional:
 ## Key scripts
 
 - `dev`: `bun run --hot src/server.ts`
+- `lint`: `biome check .`
+- `format`: `biome format --write .`
 
 ## Architecture and structure
 
@@ -53,7 +55,7 @@ Entry point: `src/server.ts` sets the Hono app on port 3050.
 
 - TypeScript path aliases defined in `tsconfig.json`:
   - `@application/*`, `@composition/*`, `@domain/*`, `@infrastructure/*`, `@interfaces/*`
-- Lint/format: `@biomejs/biome` is installed (no explicit script configured yet).
+- Lint/format: `@biomejs/biome` via `bun run lint` and `bun run format`.
 
 ## Testing
 

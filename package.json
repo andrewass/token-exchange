@@ -4,7 +4,9 @@
 	"type": "module",
 	"private": true,
 	"scripts": {
-		"dev": "bun run --hot src/server.ts"
+		"dev": "bun run --hot src/server.ts",
+		"lint": "biome check .",
+		"format": "biome format --write ."
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.4",
