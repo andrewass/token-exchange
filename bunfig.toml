@@ -1,0 +1,3 @@
+[install]
+# Only install releases that are at least a week old
+minimumReleaseAge = 604800
