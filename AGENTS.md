@@ -72,4 +72,22 @@ If you add tests, prefer to introduce a single test command and document it here
 
 - RFC 8693 implementation skill: `skills/rfc-8693/SKILL.md`
 - Use this skill when changing token exchange semantics, OAuth error mapping, supported token types, or discovery metadata.
-- If behavior changes, update the related profile notes in `skills/rfc-8693/references/implementation-profile.md`.
+
+## RFC 8693 local profile
+
+This section is repository-specific and documents the current implementation choices.
+
+- Token endpoint: `POST /tokens/token`
+- Discovery endpoint: `GET /.well-known/oauth-authorization-server`
+- JWK Set endpoint: `GET /jwks`
+- Required `grant_type`: `urn:ietf:params:oauth:grant-type:token-exchange`
+- Required request fields: `subject_token`, `subject_token_type`, and one target via `audience` or `resource`
+- Supported `subject_token_type`: `urn:ietf:params:oauth:token-type:id_token`
+- Supported issued token type: `urn:ietf:params:oauth:token-type:access_token`
+- Target audience source: `STOCKCOMP_AUDIENCE`
+- Google client allowlist source: `GOOGLE_ALLOWED_AUDIENCES`
+- OAuth error/status mapping:
+  - `unsupported_grant_type`, `invalid_request`, `invalid_grant`, `invalid_target`, `unsupported_subject_token_type` -> `400`
+  - `server_error` -> `500`
+
+If protocol behavior changes, update this section in the same PR.

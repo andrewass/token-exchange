@@ -1,32 +1,21 @@
 ---
 name: rfc-8693
-description: RFC 8693 OAuth 2.0 Token Exchange implementation guide for this repository. Use when adding or changing /tokens/token behavior, token request validation, OAuth error mapping, discovery metadata, validator support, or issuer behavior tied to token exchange semantics.
+description: RFC 8693 OAuth 2.0 Token Exchange implementation guide. Use when designing, implementing, or reviewing token exchange behavior, request validation, OAuth error mapping, discovery metadata, supported token types, and issuer/validator changes.
 ---
 
 # RFC 8693 Skill
 
-Use this skill to keep token-exchange changes compliant with RFC 8693 while matching this service's current profile.
+Use this skill to keep token-exchange behavior compliant with RFC 8693 while staying explicit about local implementation choices.
 
-## Use This Repository Profile
+## Establish Local Profile First
 
-Follow the implementation profile in `references/implementation-profile.md` before changing behavior.
+Before changing code, identify the app's local profile (for example in `AGENTS.md`, `README.md`, or a project-specific profile doc). If no profile exists, create one in project docs before implementing behavior changes.
 
-Current profile summary:
-
-- Grant type is fixed to `urn:ietf:params:oauth:grant-type:token-exchange`.
-- Accepted subject token type is currently `urn:ietf:params:oauth:token-type:id_token` (Google ID token validator).
-- Issued token type is currently `urn:ietf:params:oauth:token-type:access_token`.
-- A target is required via `audience` or `resource`; unknown target returns `invalid_target`.
-- Endpoint is `POST /tokens/token` and discovery is `GET /.well-known/oauth-authorization-server`.
+Do not assume fixed token types, endpoints, or provider-specific validators unless local profile docs say so.
 
 ## Change Workflow
 
-1. Read these files first:
-   - `src/interfaces/http/token/tokenRoutes.ts`
-   - `src/application/tokenExchange/exchangeTokenUseCase.ts`
-   - `src/interfaces/http/discovery/discoveryRoutes.ts`
-   - `src/domain/tokenExchange/types.ts`
-   - `src/domain/tokenExchange/errors.ts`
+1. Read the token endpoint implementation, use case/application layer, discovery metadata route, and OAuth error model.
 2. Preserve protocol-level behavior:
    - Parse OAuth form fields from request body.
    - Reject unsupported grant type with `unsupported_grant_type`.
@@ -39,13 +28,13 @@ Current profile summary:
    - `requested_token_types_supported`
 4. If adding a new subject token type:
    - Add a validator implementing `IncomingTokenValidator`.
-   - Register it in composition (`src/composition/createApp.ts`).
+   - Register it in the application's composition/bootstrap wiring.
    - Update discovery supported types.
-   - Update `references/implementation-profile.md`.
+   - Update local profile documentation.
 5. If adding a new issued token type:
    - Extend use-case validation and issuer implementation.
    - Update discovery supported requested token types.
-   - Update response contract documentation and profile notes.
+   - Update response contract documentation and local profile notes.
 
 ## Error Mapping Guardrails
 
@@ -63,7 +52,7 @@ Avoid returning ad hoc error shapes from token exchange flow. Use `OAuthTokenExc
 ## Completion Checklist
 
 - Token endpoint behavior and discovery metadata are in sync.
-- Newly supported token types are wired in both registry/composition and discovery.
+- Newly supported token types are wired in both validator/issuer registration and discovery.
 - OAuth error codes remain specific and stable.
-- `AGENTS.md` and `references/implementation-profile.md` reflect the new behavior.
-- Lint passes (`bun run lint`).
+- Local profile documentation reflects new behavior.
+- Project lint/tests pass.
