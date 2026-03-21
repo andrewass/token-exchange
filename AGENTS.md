@@ -67,3 +67,9 @@ If you add tests, prefer to introduce a single test command and document it here
 - Keep new HTTP routes in `src/interfaces/http`.
 - Prefer adding business logic in `src/application` and `src/domain`.
 - Infrastructure concerns (token validation, issuance, storage) belong in `src/infrastructure`.
+
+## Repository skills
+
+- RFC 8693 implementation skill: `skills/rfc-8693/SKILL.md`
+- Use this skill when changing token exchange semantics, OAuth error mapping, supported token types, or discovery metadata.
+- If behavior changes, update the related profile notes in `skills/rfc-8693/references/implementation-profile.md`.
