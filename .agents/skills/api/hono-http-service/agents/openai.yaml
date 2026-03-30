@@ -1,0 +1,4 @@
+interface:
+  display_name: "Hono HTTP Service"
+  short_description: "Build consistent Hono routing and middleware flows"
+  default_prompt: "Use $hono-http-service to implement or refactor Hono routes, middleware, validation, and error handling."

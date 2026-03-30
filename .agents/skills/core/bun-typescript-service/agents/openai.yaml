@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bun TypeScript Service"
+  short_description: "Keep Bun backend runtime and scripts consistent"
+  default_prompt: "Use $bun-typescript-service to update runtime commands, scripts, env handling, and tests in this Bun + TypeScript service."
