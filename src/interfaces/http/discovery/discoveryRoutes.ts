@@ -10,7 +10,7 @@ export function createDiscoveryRoutes(options: DiscoveryOptions) {
 	discovery.get("/oauth-authorization-server", (c) => {
 		return c.json({
 			issuer: options.issuerBaseUrl,
-			token_endpoint: `${options.issuerBaseUrl}/tokens/token`,
+			token_endpoint: `${options.issuerBaseUrl}/token`,
 			jwks_uri: `${options.issuerBaseUrl}/jwks`,
 			grant_types_supported: [
 				"urn:ietf:params:oauth:grant-type:token-exchange",

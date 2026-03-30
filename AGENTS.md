@@ -47,7 +47,7 @@ Entry point: `src/server.ts` sets the Hono app on port 3050.
 
 ## HTTP surface
 
-- `POST /tokens/token` OAuth-style token endpoint
+- `POST /token` OAuth-style token endpoint
 - `GET /jwks` public keys for issued access tokens
 - `GET /.well-known/oauth-authorization-server` discovery metadata
 
@@ -154,7 +154,7 @@ If you add tests, introduce a single canonical test command (for example `test`)
 
 This section is repository-specific and documents the current implementation choices.
 
-- Token endpoint: `POST /tokens/token`
+- Token endpoint: `POST /token`
 - Discovery endpoint: `GET /.well-known/oauth-authorization-server`
 - JWK Set endpoint: `GET /jwks`
 - Required `grant_type`: `urn:ietf:params:oauth:grant-type:token-exchange`

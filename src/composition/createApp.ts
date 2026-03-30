@@ -26,8 +26,30 @@ function readCsvEnv(name: string, fallback: string[]): string[] {
 		.filter(Boolean);
 }
 
+function readRequiredCsvEnv(name: string): string[] {
+	const values = readCsvEnv(name, []);
+	if (values.length === 0) {
+		throw new Error(`${name} is not set or has no values`);
+	}
+	return values;
+}
+
 function shouldLogClientErrors(): boolean {
 	return process.env.LOG_CLIENT_ERRORS !== "false";
+}
+
+function toErrorContext(error: unknown): Record<string, unknown> {
+	if (error instanceof Error) {
+		return {
+			type: error.name,
+			message: error.message,
+			stack: error.stack,
+		};
+	}
+	return {
+		type: "UnknownError",
+		message: String(error),
+	};
 }
 
 export function createApp() {
@@ -81,7 +103,7 @@ export function createApp() {
 
 	const incomingTokenValidators = new InMemoryIncomingTokenValidatorRegistry([
 		new GoogleIdTokenValidator({
-			allowedAudiences: readCsvEnv("GOOGLE_ALLOWED_AUDIENCES", []),
+			allowedAudiences: readRequiredCsvEnv("GOOGLE_ALLOWED_AUDIENCES"),
 			allowedIssuers: ["https://accounts.google.com", "accounts.google.com"],
 		}),
 	]);
@@ -106,15 +128,42 @@ export function createApp() {
 		new SystemClock(),
 	);
 
-	app.route("/tokens", createTokenRoutes(tokenExchange));
+	app.route("/token", createTokenRoutes(tokenExchange));
 	app.route("/jwks", createJwksRoutes(keyStore));
 	app.route("/.well-known", createDiscoveryRoutes({ issuerBaseUrl }));
+
+	app.notFound((c) => {
+		if (logClientErrors) {
+			logger.warn("Route not found", {
+				requestId: c.get("requestId"),
+				path: c.req.path,
+				method: c.req.method,
+			});
+		}
+		return c.json(
+			{
+				error: "not_found",
+				error_description: "Resource not found.",
+			},
+			404,
+		);
+	});
+
+	app.onError((error, c) => {
+		logger.error("Unhandled request exception", {
+			requestId: c.get("requestId"),
+			path: c.req.path,
+			method: c.req.method,
+			error: toErrorContext(error),
+		});
+		return c.json({ error: "server_error" }, 500);
+	});
 
 	app.get("/", (c) =>
 		c.json({
 			service: "token-exchange",
 			grant_type: "urn:ietf:params:oauth:grant-type:token-exchange",
-			token_endpoint: `${issuerBaseUrl}/tokens/token`,
+			token_endpoint: `${issuerBaseUrl}/token`,
 		}),
 	);
 

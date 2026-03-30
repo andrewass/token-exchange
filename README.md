@@ -13,7 +13,7 @@ Server defaults to `http://localhost:3050`.
 
 ## Endpoints
 
-- `POST /tokens/token` (OAuth-style token endpoint)
+- `POST /token` (OAuth-style token endpoint)
 - `GET /jwks` (public keys for issued access tokens)
 - `GET /.well-known/oauth-authorization-server` (metadata)
 
@@ -28,7 +28,7 @@ Server defaults to `http://localhost:3050`.
 ## Example token exchange request
 
 ```bash
-curl -X POST http://localhost:3050/tokens/token \
+curl -X POST http://localhost:3050/token \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \
   -d "subject_token=<google_id_token>" \

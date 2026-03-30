@@ -83,11 +83,13 @@ export function createTokenRoutes(exchangeTokenUseCase: ExchangeTokenUseCase) {
 		try {
 			body = await c.req.parseBody();
 		} catch (error) {
-			logger.warn("Invalid token request body", {
-				requestId,
-				path: c.req.path,
-				error: toErrorContext(error),
-			});
+			if (logClientErrors) {
+				logger.warn("Invalid token request body", {
+					requestId,
+					path: c.req.path,
+					error: toErrorContext(error),
+				});
+			}
 			return c.json(
 				{
 					error: "invalid_request",
