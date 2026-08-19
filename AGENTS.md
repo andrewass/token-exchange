@@ -69,7 +69,7 @@ If you add tests, introduce a single canonical test command (for example `test`)
 
 ## Verification policy
 
-- After code changes, run `bun run lint` and `bun run format`.
+- Run `bun format` as the final step before commit.
 - Once tests are configured, run the canonical test command as part of verification.
 - Never claim checks or tests passed if they were not executed.
 - If execution is blocked, report exactly what was not run and why.
